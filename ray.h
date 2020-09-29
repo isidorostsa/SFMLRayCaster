@@ -10,7 +10,7 @@ private:
     float rayLength;
 
     // check if they intersect:
-    // if they do return the length of the ray when they do
+    // if they do, return the length of the ray till they do
     // else return 0.
     float CheckDist(const Wall& wall);
 public:
