@@ -19,8 +19,8 @@ void MakeRays(std::vector<Ray>& rayArray, const sf::Vector2f& mousePosition2f, s
     }
 }
 
-void MakeWalls(std::vector<Wall>& wallArray, size_t size, bool drawWalls = true){
-    if(drawWalls){
+void MakeWalls(std::vector<Wall>& wallArray, size_t size, bool wallsOn = true){
+    if(wallsOn){
         wallArray.push_back(Wall(sf::Vector2f(0.f, 0.f), sf::Vector2f((float)WIDTH, 0.f)));
         wallArray.push_back(Wall(sf::Vector2f((float)WIDTH, 0.f), sf::Vector2f((float)WIDTH, (float)HEIGHT)));
         wallArray.push_back(Wall(sf::Vector2f((float)WIDTH, (float)HEIGHT), sf::Vector2f(0.f, (float)WIDTH)));
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
 
         for(Ray& ray : rayArray){
             ray[0].position = mousePosition2f;
-            if(ray.Intersect(wallArray))
+            if(ray.ProjectOnto(wallArray))
                 window.draw(ray);
         }
 

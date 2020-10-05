@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cmath>
+#include <optional>
 #include "wall.h"
 
 class Ray : public sf::VertexArray{
@@ -12,7 +13,8 @@ private:
     // check if they intersect:
     // if they do, return the length of the ray till they do
     // else return 0.
-    float CheckDist(const Wall& wall);
+    std::optional<float> CheckDist(const Wall& wall);
+
 public:
     Ray(sf::Vector2f pos, sf::Vector2f dir, float rayLength, sf::Color color0 = sf::Color::White, sf::Color color1 = sf::Color::White);
 
@@ -28,6 +30,6 @@ public:
 
     // update the rayLength to match the closest collision
     // return true if at least one collision was found
-    bool Intersect(const std::vector<Wall>& wallArray);
+    bool ProjectOnto(const std::vector<Wall>& wallArray);
 
 };
