@@ -92,11 +92,11 @@ int main(int argc, char* argv[]){
         if(frameCount == 100){
             // calculate average fps over last100fps
 
-            float sum; // hope we don't overflow 
-            for(float& _fps : last100fps){
+            float sum = 0; // hope we don't overflow 
+            for(float _fps : last100fps){
                 sum += _fps;
             }
-            
+
             std::cout << "average fps over the last 100 frames : " << sum / 100.f << std::endl;
             
             frameCount = 0; 
