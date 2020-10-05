@@ -8,7 +8,7 @@
 #define HEIGHT 600
 #define RAY_NUM 100
 #define WALL_NUM 20
-#define PI 3.141592f
+#define PI  3.14159265358979323846
 
 #include "ray.cpp"
 #include "wall.cpp"
@@ -99,11 +99,13 @@ int main(int argc, char* argv[]){
             
             std::cout << "average fps over the last 100 frames : " << sum / 100.f << std::endl;
             
+            frameCount = 0; 
             last100fps.clear();
             clock.restart();
             
         } else {
             last100fps.push_back(1.f / clock.restart().asSeconds());
+            frameCount++;
         }
     }
     return 0;
