@@ -56,6 +56,9 @@ int main(int argc, char* argv[]){
     std::vector<Ray> rayArray;
     MakeRays(rayArray, sf::Vector2f(0.f, 0.f), RaysAmmount, 500.f);
 
+    size_t frameCount = 0; 
+    std::vector<float> last100fps; 
+
     while(window.isOpen()){
         const sf::Vector2f mousePosition2f = (sf::Vector2f)sf::Mouse::getPosition(window);
         sf::Event event;
@@ -85,9 +88,23 @@ int main(int argc, char* argv[]){
         window.display();
         window.clear();
 
-        float fps = 1.f / clock.getElapsedTime().asSeconds();
-        clock.restart();
-        std::cout << fps << std::endl;
+        // this is to display average fps every 100 frames:
+        if(frameCount == 100){
+            // calculate average fps over last100fps
+
+            float sum; // hope we don't overflow 
+            for(float& _fps : last100fps){
+                sum += _fps;
+            }
+            
+            std::cout << "average fps over the last 100 frames : " << sum / 100.f << std::endl;
+            
+            last100fps.clear();
+            clock.restart();
+            
+        } else {
+            last100fps.push_back(1.f / clock.restart().asSeconds());
+        }
     }
     return 0;
 }
