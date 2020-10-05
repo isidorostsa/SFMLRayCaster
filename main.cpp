@@ -14,7 +14,7 @@
 #include "wall.cpp"
 
 void MakeRays(std::vector<Ray>& rayArray, const sf::Vector2f& mousePosition2f, size_t size, float length){
-    for(float angle = 0; angle < 2 * PI; angle += (2 * PI) / size){
+    for(float angle = 0; angle <= 2 * PI; angle += (2 * PI) / size){
         rayArray.push_back(Ray(mousePosition2f, sf::Vector2f(std::cos(angle), std::sin(angle)), length));
     }
 }
