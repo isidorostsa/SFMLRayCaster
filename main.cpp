@@ -4,17 +4,17 @@
 #include <vector>
 #include <cmath>
 
-#define WIDTH 1920
-#define HEIGHT 1080
+#define WIDTH 600
+#define HEIGHT 600
 #define RAY_NUM 100
 #define WALL_NUM 20
-#define PI 3.141592
+#define PI 3.141592f
 
 #include "ray.cpp"
 #include "wall.cpp"
 
 void MakeRays(std::vector<Ray>& rayArray, const sf::Vector2f& mousePosition2f, size_t size, float length){
-    for(float angle = 0; angle < 2*PI; angle += (2*PI)/size){
+    for(float angle = 0; angle < 2 * PI; angle += (2 * PI) / size){
         rayArray.push_back(Ray(mousePosition2f, sf::Vector2f(std::cos(angle), std::sin(angle)), length));
     }
 }
@@ -42,14 +42,7 @@ void MakeWalls(std::vector<Wall>& wallArray, size_t size, bool drawWalls = true)
 int main(int argc, char* argv[]){
     srand(time(NULL));
 
-    size_t RaysAmmount;
-
-    if(argc <= 1){
-        RaysAmmount = RAY_NUM;
-    }
-    else{
-        RaysAmmount = atoi(argv[1]);
-    }
+    const size_t RaysAmmount = argc > 1 ? atoi(argv[1]) : RAY_NUM;
 
     sf::Clock clock;
 
