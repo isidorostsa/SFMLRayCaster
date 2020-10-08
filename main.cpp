@@ -8,35 +8,13 @@
 #define HEIGHT 600
 #define RAY_NUM 100
 #define WALL_NUM 20
-#define PI  3.1415926535897932384
+
+double Pi = std::acos(-1);
+double angleFacing = 0;
+double angleOfVision = Pi / 2;
 
 #include "ray.cpp"
 #include "wall.cpp"
-
-void MakeRays(std::vector<Ray>& rayArray, const sf::Vector2f& mousePosition2f, size_t size, float length){
-    for(double angle = 0; angle <= 2 * PI; angle += 2 * PI / size){
-        rayArray.push_back(Ray(mousePosition2f, sf::Vector2f(std::cos(angle), std::sin(angle)), length));
-    }
-}
-
-void MakeWalls(std::vector<Wall>& wallArray, size_t size, bool wallsOn = true){
-    //draw the border walls
-    wallArray.push_back(Wall(sf::Vector2f(0.f, 0.f), sf::Vector2f((float)WIDTH, 0.f)));
-    wallArray.push_back(Wall(sf::Vector2f((float)WIDTH, 0.f), sf::Vector2f((float)WIDTH, (float)HEIGHT)));
-    wallArray.push_back(Wall(sf::Vector2f((float)WIDTH, (float)HEIGHT), sf::Vector2f(0.f, (float)WIDTH)));
-    wallArray.push_back(Wall(sf::Vector2f(0.f, (float)WIDTH), sf::Vector2f(0.f, 0.f)));
-
-    for(size_t i = 0; i < size; i++){
-
-        float x1 = WIDTH * (float)rand() / RAND_MAX;
-        float y1 = HEIGHT * (float)rand() / RAND_MAX;
-        float x2 = WIDTH * (float)rand() / RAND_MAX;
-        float y2 = HEIGHT * (float)rand() / RAND_MAX;
-
-        wallArray.push_back(Wall(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2)));
-    }
-}
-
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
@@ -46,22 +24,24 @@ int main(int argc, char* argv[]){
     sf::Clock clock;
 
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 100;
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML", sf::Style::Default, settings);
+    settings.antialiasingLevel = 3;
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "RayCaster", sf::Style::Default, settings);
     window.setFramerateLimit(200);
 
     std::vector<Wall> wallArray;
-    MakeWalls(wallArray, WALL_NUM);
+    Wall::MakeWalls(wallArray, WALL_NUM);
 
     std::vector<Ray> rayArray;
-    MakeRays(rayArray, sf::Vector2f(0.f, 0.f), RaysAmmount, 500.f);
+    Ray::MakeRays(rayArray, sf::Vector2f(0.f, 0.f), RaysAmmount);
 
     size_t frameCount = 0;
     float lastAvgFps = 200;
     std::vector<float> last100fps;
 
     while(window.isOpen()){
-        const sf::Vector2f mousePosition2f = (sf::Vector2f)sf::Mouse::getPosition(window);
+        const sf::Vector2f mousePosition2f = 
+                        static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
+
         sf::Event event;
 
         while(window.pollEvent(event)){
@@ -71,8 +51,28 @@ int main(int argc, char* argv[]){
                 window.close();
                 break;
             case sf::Event::KeyPressed:
+
+                switch (event.KeyPressed)
+                {
+                case sf::Keyboard::A :
+                    //angleFacing = 
+                    //        static_cast<double>(fmodf64(angleFacing + 2*Pi/100, 2*Pi));
+                    for(Ray& ray : rayArray)
+                        ray.RotateBy(2*Pi/100);
+                    break;
+                
+                case sf::Keyboard::D :
+                    //angleFacing = 
+                    //        static_cast<double>(fmodf64(angleFacing - 2*Pi/100, 2*Pi));
+                    for(Ray& ray : rayArray)
+                        ray.RotateBy(-2*Pi/100);
+                    break;
+                
+                default:
+                    break;
+                }
                 wallArray.clear();
-                MakeWalls(wallArray, WALL_NUM);
+                Wall::MakeWalls(wallArray, WALL_NUM);
                 break;
             }
         }
@@ -82,8 +82,7 @@ int main(int argc, char* argv[]){
         }
 
         for(Ray& ray : rayArray){
-            ray[0].position = mousePosition2f;
-            ray.ProjectOnto(wallArray);
+            ray.Update(mousePosition2f, wallArray);
             window.draw(ray);
         }
 

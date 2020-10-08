@@ -1,6 +1,7 @@
 #include "ray.h"
+#include <cmath>
 
-Ray::Ray(sf::Vector2f pos, sf::Vector2f dir, float rayLength, sf::Color color0, sf::Color color1)
+Ray::Ray(const sf::Vector2f& pos, const sf::Vector2f& dir, float rayLength, sf::Color color0, sf::Color color1)
         : dir(dir), rayLength(rayLength), sf::VertexArray(sf::Lines, 2)
 {
     (*this)[0].position = pos;
@@ -9,7 +10,28 @@ Ray::Ray(sf::Vector2f pos, sf::Vector2f dir, float rayLength, sf::Color color0, 
     (*this)[0].color = color0;
     (*this)[1].color = color1;
     
-    Normalize();
+    NormalizeDir();
+} 
+
+Ray::Ray(const sf::Vector2f& pos, double angle)
+        : rayLength(1.f)
+{
+    dir.x = std::cos(angle);
+    dir.y = std::sin(angle);
+
+    (*this)[0].position = pos;
+    (*this)[1].position = pos + rayLength * dir;
+
+    // dir is already normalized    
+} 
+
+Ray::Ray(const sf::Vector2f& pos, const sf::Vector2f& dir)
+        : dir(dir), sf::VertexArray(sf::Lines, 2)
+{
+    (*this)[0].position = pos;
+    (*this)[1].position = pos + dir;
+
+    NormalizeDir();
 }
 
 
@@ -20,9 +42,10 @@ void Ray::SetRayLength(float rayLength){
 
 
 
-void Ray::Normalize(){
-    const float magnitude = dir.x*dir.x + dir.y*dir.y;
-    if(std::abs(1 - magnitude) > 1e-7){
+void Ray::NormalizeDir(){
+    float magnitude = dir.x*dir.x + dir.y*dir.y;
+
+    if(std::abs(1 - magnitude) > 1e-5){
        dir.x /= sqrt((double)magnitude);
        dir.y /= sqrt((double)magnitude);
     }
@@ -64,12 +87,11 @@ std::optional<float> Ray::CheckDist(const Wall& wall){
 }
 
 
-
 // return the distance to the first wall you strike.
 // if you don't cross any walls then return false.
 bool Ray::ProjectOnto(const std::vector<Wall>& wallArray){
     
-    float minDist = INFINITY;
+    float minDist = static_cast<float>(INFINITY);
     bool intersected = false;
 
     for(const Wall& wall : wallArray){
@@ -89,4 +111,68 @@ bool Ray::ProjectOnto(const std::vector<Wall>& wallArray){
     }
     else 
         return false;
+}
+
+void Ray::SetRotation(double angle)
+{
+    dir.x = std::cos(angle);
+    dir.y = std::sin(angle);
+
+    UpdateTip();
+}
+
+void Ray::RotateBy(double angle)
+{
+    double currentAngle;
+
+    if(dir.x == 0)
+        currentAngle = dir.y > 0 ? Pi/2 : 3*Pi/2; 
+    else
+        currentAngle = std::atan(dir.y/dir.x);
+
+    dir.x = std::cos(currentAngle + angle); 
+    dir.y = std::sin(currentAngle + angle);
+    // already normalized
+}
+
+void Ray::ChangeDir(float x, float y)
+{
+    dir.x = x;
+    dir.y = y;
+
+    NormalizeDir();
+    UpdateTip();
+}
+
+void Ray::UpdateTip()
+{
+    (*this)[1] = pos + rayLength * dir;
+}
+
+void Ray::Update(const sf::Vector2f& mousePosition2f, const std::vector<Wall>& wallArray)
+{ 
+    (*this)[0].position = mousePosition2f; 
+    UpdateTip();
+
+    ProjectOnto(wallArray);
+}
+
+
+void Ray::MakeRays(std::vector<Ray>& rayArray,
+                const sf::Vector2f& mousePosition2f, size_t ammount)
+{
+    rayArray.clear();
+
+    for(double angle = 0; angle <= 2 * Pi; angle += 2 * Pi / ammount)
+        rayArray.emplace_back(mousePosition2f, angle);
+}
+
+
+void Ray::MakeRays(std::vector<Ray>& rayArray, const sf::Vector2f& mousePosition2f,
+                size_t ammount, double angleFacing, double viewingAngle)
+{
+    rayArray.clear();
+
+    for(double angle = angleFacing; angle <= angleFacing + viewingAngle; angle += 2 * Pi / ammount)
+        rayArray.emplace_back(mousePosition2f, angle);
 }
