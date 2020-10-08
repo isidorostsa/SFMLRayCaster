@@ -4,11 +4,11 @@
 #include <vector>
 #include <cmath>
 
-#define WIDTH 600
-#define HEIGHT 600
-#define RAY_NUM 100
-#define WALL_NUM 20
+#define WIDTH 2000
+#define HEIGHT 1000
+#define WALL_NUM 3
 
+size_t RayAmmount = 100; 
 double Pi = std::acos(-1);
 double angleFacing = 0;
 double angleOfVision = Pi / 2;
@@ -16,10 +16,9 @@ double angleOfVision = Pi / 2;
 #include "ray.cpp"
 #include "wall.cpp"
 
+
 int main(int argc, char* argv[]){
     srand(time(NULL));
-
-    const size_t RaysAmmount = argc > 1 ? atoi(argv[1]) : RAY_NUM;
 
     sf::Clock clock;
 
@@ -32,7 +31,9 @@ int main(int argc, char* argv[]){
     Wall::MakeWalls(wallArray, WALL_NUM);
 
     std::vector<Ray> rayArray;
-    Ray::MakeRays(rayArray, sf::Vector2f(0.f, 0.f), RaysAmmount);
+    Ray::MakeRays(rayArray, sf::Vector2f(0.f, 0.f), RayAmmount);
+    bool shouldAddRay = false; 
+
 
     size_t frameCount = 0;
     float lastAvgFps = 200;
@@ -50,30 +51,37 @@ int main(int argc, char* argv[]){
             case sf::Event::Closed:
                 window.close();
                 break;
+            
             case sf::Event::KeyPressed:
-
-                switch (event.KeyPressed)
+                std::cout << "key pressed" << std::endl;
+                switch (event.key.code)
                 {
-                case sf::Keyboard::A :
+                case sf::Keyboard::Left :
                     //angleFacing = 
                     //        static_cast<double>(fmodf64(angleFacing + 2*Pi/100, 2*Pi));
+                    std::cout << "tried to spin!" << std::endl;
                     for(Ray& ray : rayArray)
-                        ray.RotateBy(2*Pi/100);
+                        ray.RotateBy(2*Pi/2000);
                     break;
                 
-                case sf::Keyboard::D :
+                case sf::Keyboard::Right :
                     //angleFacing = 
                     //        static_cast<double>(fmodf64(angleFacing - 2*Pi/100, 2*Pi));
                     for(Ray& ray : rayArray)
-                        ray.RotateBy(-2*Pi/100);
+                        ray.RotateBy(-2*Pi/2000);
                     break;
-                
-                default:
+
+                case sf::Keyboard::N :
+                    wallArray.clear();
+                    Wall::MakeWalls(wallArray, WALL_NUM);
                     break;
+
+                case sf::Keyboard::M :
+                    RayAmmount++;
+                    shouldAddRay = true;
+                    break;
+
                 }
-                wallArray.clear();
-                Wall::MakeWalls(wallArray, WALL_NUM);
-                break;
             }
         }
 
@@ -89,17 +97,18 @@ int main(int argc, char* argv[]){
         window.display();
         window.clear();
 
+        size_t fpsAmmount = 1000;
         // this is to display average fps every 100 frames:
-        if(frameCount == 100){
+        if(frameCount == fpsAmmount){
             // calculate average fps over last100fps
 
             double sum = 0; // hope we don't overflow :P
             for(float _fps : last100fps){
                 sum += _fps;
             }
-            float avgFps = sum / 100.f;
+            float avgFps = sum / static_cast<float>(fpsAmmount);
 
-            std::cout << "average fps over the last 100 frames : " << avgFps << std::endl;
+            std::cout << "average fps over the last " << fpsAmmount << " frames : " << avgFps << std::endl;
             
             frameCount = 0; 
             last100fps.clear();

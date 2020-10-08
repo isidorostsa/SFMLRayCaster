@@ -14,7 +14,7 @@ Ray::Ray(const sf::Vector2f& pos, const sf::Vector2f& dir, float rayLength, sf::
 } 
 
 Ray::Ray(const sf::Vector2f& pos, double angle)
-        : rayLength(1.f)
+        : rayLength(1.f), sf::VertexArray(sf::Lines, 2)
 {
     dir.x = std::cos(angle);
     dir.y = std::sin(angle);
@@ -37,7 +37,7 @@ Ray::Ray(const sf::Vector2f& pos, const sf::Vector2f& dir)
 
 void Ray::SetRayLength(float rayLength){
     this->rayLength = rayLength;
-    (*this)[1].position = pos + (rayLength * dir);
+    UpdateTip();
 }
 
 
@@ -125,13 +125,15 @@ void Ray::RotateBy(double angle)
 {
     double currentAngle;
 
-    if(dir.x == 0)
+    if(dir.x == 0){
         currentAngle = dir.y > 0 ? Pi/2 : 3*Pi/2; 
+        std::cout << "found a vertical one!" << std::endl;
+    }
     else
         currentAngle = std::atan(dir.y/dir.x);
 
-    dir.x = std::cos(currentAngle + angle); 
-    dir.y = std::sin(currentAngle + angle);
+    dir.x = std::cos(fmod(currentAngle + angle, 2 * Pi)); 
+    dir.y = std::sin(fmod(currentAngle + angle, 2 * Pi));
     // already normalized
 }
 

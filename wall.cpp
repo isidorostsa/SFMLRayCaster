@@ -9,10 +9,10 @@ Wall::Wall(sf::Vector2f point1, sf::Vector2f point2) : sf::VertexArray(sf::Lines
 
 void Wall::MakeWalls(std::vector<Wall>& wallArray, size_t size){
     //draw the border walls
-    wallArray.push_back(Wall(sf::Vector2f(0.f, 0.f), sf::Vector2f((float)WIDTH, 0.f)));
-    wallArray.push_back(Wall(sf::Vector2f((float)WIDTH, 0.f), sf::Vector2f((float)WIDTH, (float)HEIGHT)));
-    wallArray.push_back(Wall(sf::Vector2f((float)WIDTH, (float)HEIGHT), sf::Vector2f(0.f, (float)WIDTH)));
-    wallArray.push_back(Wall(sf::Vector2f(0.f, (float)WIDTH), sf::Vector2f(0.f, 0.f)));
+    wallArray.emplace_back(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, 0.f));
+    wallArray.emplace_back(sf::Vector2f(WIDTH, 0.f), sf::Vector2f(WIDTH, HEIGHT));
+    wallArray.emplace_back(sf::Vector2f(WIDTH, HEIGHT), sf::Vector2f(0.f, HEIGHT));
+    wallArray.emplace_back(sf::Vector2f(0.f, HEIGHT), sf::Vector2f(0.f, 0.f));
 
     for(size_t i = 0; i < size; i++){
 
